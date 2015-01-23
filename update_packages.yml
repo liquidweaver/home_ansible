@@ -1,0 +1,18 @@
+---
+- hosts: all
+  tasks:
+    - name: ensure aptitude for safe upgrade
+      apt: name=aptitude state=latest
+
+    - name: run apt-get update equivalent
+      apt: upgrade=safe
+
+    - name: check for new kernel
+      shell: if [ $(readlink -f /vmlinuz) != /boot/vmlinuz-$(uname -r) ]; then echo 'reboot'; else echo 'no'; fi
+      ignore_errors: true
+      changed_when: reboot_hint.stdout.find("reboot") != -1
+      register: reboot_hint
+
+    - name: reboot on new kernel
+      when: reboot_hint | changed
+      command: shutdown -r now "Ansible kernel update applied"
