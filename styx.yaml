@@ -1,5 +1,7 @@
 ---
 - hosts: styx.home
+  roles:
+  - consul
   tasks:
     - name: vim
       sudo: yes
