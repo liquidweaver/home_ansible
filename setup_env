@@ -1,2 +1,2 @@
 source ansible/hacking/env-setup
-ANSIBLE_HOSTS=hosts
+export ANSIBLE_HOSTS=hosts
