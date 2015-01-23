@@ -1,0 +1,17 @@
+---
+- hosts: gateway
+  tasks:
+  - name: backports repo
+    apt_repository: >
+      repo='deb http://http.debian.net/debian wheezy-backports main contrib non-free'
+      state=present
+      update_cache=yes
+  - name: sudo, vim
+    apt: name={{ item }} state=installed
+    with_items:
+    - sudo
+    - vim
+
+- hosts: gateway
+  roles:
+  - consul

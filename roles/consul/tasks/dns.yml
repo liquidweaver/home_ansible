@@ -1,0 +1,32 @@
+---
+- name: install deps
+  apt: >
+    name=dnsmasq
+    state=present
+
+- name: ensure dnsmasq reads /etc/dnsmasq.d
+  lineinfile: >
+    dest=/etc/dnsmasq.conf
+    line="conf-dir=/etc/dnsmasq.d"
+    regexp="conf-dir"
+  notify:
+    - restart dnsmasq
+
+- name: configure dnsmasq
+  copy: >
+    content='server=/{{ consul_domain }}/127.0.0.1#8600'
+    dest=/etc/dnsmasq.d/10-consul
+  notify:
+    - restart dnsmasq
+
+- name: ensure dnsmasq on startup
+  service: name=dnsmasq state=started enabled=true
+
+- name: update resolv.conf to use consul for dns
+  lineinfile: dest="/etc/network/interfaces" state=present
+              regexp="{{ item.regexp }}"
+              line="{{ item.line }}"
+  with_items:
+  - { regexp: "^dns-nameservers",line: "dns-nameservers 127.0.0.1 {{ dns_forwarders[0] }} {{ dns_forwarders[1] }} " }
+  - { regexp: "^dns-search",line: "dns-search node.{{ consul_domain }} {{ consul_domain }}"}
+  notify: reload eth0

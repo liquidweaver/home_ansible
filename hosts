@@ -1,2 +1,12 @@
+[all:vars]
+consul_domain="home"
+dns_forwarders=[ "8.8.8.8", "8.8.4.4" ]
+consul_join_at_start=true
+join_server="10.0.1.16"
+consul_datacenter=home
+ansible_ssh_user=root
+
 [homeserver]
-styx.home
+styx.home consul_is_server=true
+[gateway]
+hydrogen.home consul_is_server=true consul_join_at_start=false consul_archive="{{ consul_version }}_linux_386.zip" consul_bootstrap=true 
