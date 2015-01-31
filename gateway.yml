@@ -31,3 +31,10 @@
   - name: firewall rules
     template: src=firewall_rules dest=/etc/iptables/rules.v4
     notify: reload firewall
+
+  - name: use Google nameservers
+    notify: restart networking
+    lineinfile: >
+      line="supersede domain-name-servers 8.8.8.8, 8.8.4.4;"
+      regexp="^supersede"
+      dest=/etc/dhcp/dhclient.conf
