@@ -6,6 +6,8 @@
     service: name=iptables-persistent state=restarted
   - name: restart networking
     service: name=networking state=restarted
+  - name: restart polipo
+    service: name=polipo state=restarted
 
   tasks:
   - name: backports repo
@@ -14,16 +16,27 @@
       state=present
       update_cache=yes
 
-  - name: sudo, vim, iptables-persistent
+  - name: software
     apt: name={{ item }} state=installed
     with_items:
     - sudo
     - vim
     - iptables-persistent
     - isc-dhcp-server
+    - polipo
 
-  - name: iptables-persistent
-    service: name=iptables-persistent state=started enabled=yes
+  - name: services
+    service: name=polipo state=started enabled=yes
+    with_items:
+    - iptables-persistent
+    - polipo
+    - isc-dhcp-server
+
+  - name: polipo configuration
+    notify: restart polipo
+    template: >
+      src=polipo_config
+      dest=/etc/polipo/config
 
   - name: forward packets
     sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes
