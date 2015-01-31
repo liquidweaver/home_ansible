@@ -4,6 +4,8 @@
   handlers:
   - name: reload firewall
     service: name=iptables-persistent state=restarted
+  - name: restart networking
+    service: name=networking state=restarted
 
   tasks:
   - name: backports repo
@@ -19,6 +21,9 @@
     - vim
     - iptables-persistent
     - isc-dhcp-server
+
+  - name: iptables-persistent
+    service: name=iptables-persistent state=started enabled=yes
 
   - name: forward packets
     sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes
