@@ -1,17 +1,28 @@
 ---
 - hosts: gateway
+  #roles: [consul]
+  handlers:
+  - name: reload firewall
+    service: name=iptables-persistent state=restarted
+
   tasks:
   - name: backports repo
     apt_repository: >
       repo='deb http://http.debian.net/debian wheezy-backports main contrib non-free'
       state=present
       update_cache=yes
-  - name: sudo, vim
+
+  - name: sudo, vim, iptables-persistent
     apt: name={{ item }} state=installed
     with_items:
     - sudo
     - vim
+    - iptables-persistent
+    - isc-dhcp-server
 
-- hosts: gateway
-  roles:
-  - consul
+  - name: forward packets
+    sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present reload=yes
+
+  - name: firewall rules
+    template: src=firewall_rules dest=/etc/iptables/rules.v4
+    notify: reload firewall

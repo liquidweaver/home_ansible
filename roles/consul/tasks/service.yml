@@ -1,5 +1,5 @@
 ---
 - service: >
     name=consul
-    state=running
+    state=started
     enabled=yes
